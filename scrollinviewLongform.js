@@ -93,9 +93,11 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
               } else {
                 if( !is_rendering && videoplayer !== null && !is_playing ) {                             
                   player = brightcove.api.getExperience(players[i-1]);
+                if(player){
                   videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
-            
                   videoPlayer.play();
+                }
+                  
                   is_playing = true;
                   console.log("playing");
                 }
@@ -103,8 +105,11 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
             } else {
               if( is_playing && videoplayer !== null ) {
                 player = brightcove.api.getExperience(players[i-1]);
-                videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
-                videoPlayer.pause();
+                if(player){
+                  videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
+                  videoPlayer.pause();
+                }
+                
                 is_playing = false;
                 console.log("pause");
               }
