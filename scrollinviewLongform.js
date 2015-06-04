@@ -17,7 +17,16 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
 
     window.BCTEST = function() {
       var videoID   = $jq( ".video__still" ).parent().attr("data-video"),
-        videosource   = '<div class="video__wrapper data-video="'+ videoID +'">'+'<object id="myExperience'+ videoID +'" class="BrightcoveExperience">'
+    videosource,
+        is_rendering  = false,
+        is_playing    = false,
+        player      = null, 
+        videoplayer   = null, 
+        APIModules;
+
+        var buildVideo = function(index){
+          
+          videosource = '<div class="video__wrapper data-video="'+ videoIDs[index] +'">'+'<object id="myExperience'+ videoIDs[index] +'" class="BrightcoveExperience">'
                 + '<param name="htmlFallback" value="true" /> '
                 + '<param name="bgcolor" value="#FFFFFF" />'
                 + '<param name="width" value="580" />'
@@ -27,18 +36,14 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
                 + '<param name="isVid" value="true" />'
                 + '<param name="isUI" value="true" />'
                 + '<param name="dynamicStreaming" value="true" />'
-                + '<param name="@videoPlayer" value="'+ videoID +'" />'
+                + '<param name="@videoPlayer" value="'+ videoIDs[index] +'" />'
                 + '<param name="includeAPI" value="true" />'
                 + '<param name="templateLoadHandler" value="BCTEST.onTemplateLoad" />'
                 + '<param name="templateReadyHandler" value="BCTEST.onTemplateReady" />'
                 + '<param name="autoStart" value="false" />'
-                + '</object></div>',
-
-        is_rendering  = false,
-        is_playing    = false,
-        player      = null, 
-        videoplayer   = null, 
-        APIModules;
+                + '</object></div>'
+            return videosource
+        };
 
       return {
         onTemplateLoad: function( experience_id ) {
@@ -75,12 +80,11 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
             var videoName = ".video__" + i
             var videoNameClass = videoName + ' .figure__media'
 
-          console.log(videoName)
-
             if ( this.isScrolledIntoView( videoName ) ) {
               if( $jq( videoNameClass ).size() > 0 ) {
                 is_rendering = true;
-                $jq( videoName ).empty().append( videosource );
+                
+                $jq( videoName ).empty().append( buildVideo(i-1) );
                 brightcove.createExperiences();
               } else {
                 if( !is_rendering && videoplayer !== null && !is_playing ) {
