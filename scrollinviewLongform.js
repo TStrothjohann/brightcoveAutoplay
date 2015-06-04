@@ -1,11 +1,18 @@
 if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
-
+  var videoIDs = []
   var $jq = jQuery.noConflict();
 
   $jq(document).ready( function() {
     $jq( '.video__still' ).each(function(i) {
       i = i+1;
       $jq(this).addClass('video__' + i);
+    });
+
+    //Push all video ids into videoIDs Array
+    $jq('.video__still')
+      .parent()
+      .each(function(){
+        videoIDs.push($jq(this).attr('data-video'))
     });
 
     window.BCTEST = function() {
@@ -64,26 +71,34 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
         },
 
         checkIfVideoInView: function() {
-          if ( this.isScrolledIntoView( '.video__1' ) ) {
-            if( $jq( '.video__1 .figure__media' ).size() > 0 ) {
-              is_rendering = true;
-              $jq( ".video__1" ).empty().append( videosource );
-              brightcove.createExperiences();
+          for (var i = 1; i <= videoIDs.length; i++) {
+            var videoName = ".video__" + i
+            var videoNameClass = videoName + ' .figure__media'
+
+          console.log(videoName)
+
+            if ( this.isScrolledIntoView( videoName ) ) {
+              if( $jq( videoNameClass ).size() > 0 ) {
+                is_rendering = true;
+                $jq( videoName ).empty().append( videosource );
+                brightcove.createExperiences();
+              } else {
+                if( !is_rendering && videoplayer !== null && !is_playing ) {
+                  videoplayer.play();
+                  is_playing = true;
+                  console.log("playing");
+                }
+              }
             } else {
-              if( !is_rendering && videoplayer !== null && !is_playing ) {
-                videoplayer.play();
-                is_playing = true;
-                console.log("playing");
+              if( is_playing && videoplayer !== null ) {
+                videoplayer.pause();
+                is_playing = false;
+                console.log("pause");
               }
             }
-          } else {
-            if( is_playing && videoplayer !== null ) {
-              videoplayer.pause();
-              is_playing = false;
-              console.log("pause");
-            }
-          }
+          }; //end of loop
         },
+        
 
         trackAction: function(action, videoid) {
           action = action || 'play';
@@ -93,8 +108,11 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
       }
     }();
 
+
     $jq(window).on("scroll", function(){
       BCTEST.checkIfVideoInView();
     });
   });
 }
+
+
