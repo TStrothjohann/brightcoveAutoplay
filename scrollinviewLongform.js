@@ -22,6 +22,7 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
         is_playing    = false,
         player      = null, 
         videoplayer   = null, 
+        players = [],
         APIModules;
 
         var buildVideo = function(index){
@@ -46,7 +47,8 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
         };
 
       return {
-        onTemplateLoad: function( experience_id ) {
+        onTemplateLoad: function( experienceID ) {
+          players.push(experienceID);
           console.log("loaded");
         },
 
@@ -57,6 +59,7 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
           videoplayer.play();
           is_rendering = false;
           is_playing = true;
+
           console.log("started");
         },
 
@@ -77,6 +80,7 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
 
         checkIfVideoInView: function() {
           for (var i = 1; i <= videoIDs.length; i++) {
+            
             var videoName = ".video__" + i
             var videoNameClass = videoName + ' .figure__media'
 
@@ -87,28 +91,27 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
                 $jq( videoName ).empty().append( buildVideo(i-1) );
                 brightcove.createExperiences();
               } else {
-                if( !is_rendering && videoplayer !== null && !is_playing ) {
-                  videoplayer.play();
+                if( !is_rendering && videoplayer !== null && !is_playing ) {                             
+                  player = brightcove.api.getExperience(players[i-1]);
+                  videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
+            
+                  videoPlayer.play();
                   is_playing = true;
                   console.log("playing");
                 }
               }
             } else {
               if( is_playing && videoplayer !== null ) {
-                videoplayer.pause();
+                player = brightcove.api.getExperience(players[i-1]);
+                videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
+                videoPlayer.pause();
                 is_playing = false;
                 console.log("pause");
               }
             }
           }; //end of loop
-        },
-        
-
-        trackAction: function(action, videoid) {
-          action = action || 'play';
-          videoid = videoid || videoToPlay;
-          console.log("Player " + action + ".");
         }
+        
       }
     }();
 
