@@ -20,8 +20,6 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
     window.BCTEST = function() {
       var videoID   = $jq( ".video__still" ).parent().attr("data-video"),
       videosource,
-      is_rendering  = false,
-      is_playing    = false,
       player      = null, 
       videoPlayer   = null, 
       players = [],
@@ -51,7 +49,6 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
 
       return {
         onTemplateLoad: function( experienceID ) {
-          is_rendering = true;
           console.log("loading");
         },
 
@@ -60,8 +57,6 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
           player = brightcove.api.getExperience(evt.target.experience.id);               
           initialVideoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
           initialVideoPlayer.play();
-          is_playing = true;
-          console.log("playing");
           players.push(evt.target.experience.id)
         },
 
@@ -86,32 +81,34 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
             var videoName = ".video__" + i
            
             if ( this.isScrolledIntoView( videoName )) {
-              //if video still replace with video
               if( videoStill(videoName) ){
               	buildVideo(i)
-              //else play the video
               } else {
-              	player = brightcove.api.getExperience(players[i-1]);               
-                videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
-                videoPlayer.play();
-                is_playing = true;
-                console.log("playing");
-              }
-              
-              console.log("inView"+players[i-1])
+              	this.playIt(players[i-1])
+              }             
             //When video is out of view
             } else {
-            		if( !videoStill(videoName) ){
-	            		player = brightcove.api.getExperience(players[i-1]);               
-	              	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);           	            		
-	            		videoPlayer.pause();
-	            		is_playing = false;	            	            	
-            			console.log("outOfView"+players[i-1])
-            		};
+	          		if( !videoStill(videoName) ){
+           	      this.pauseIt(players[i-1])	
+	          		};
             }
           }; //end of loop
-        }        
-      }
+        },
+
+        pauseIt: function(experienceID){
+		      player = brightcove.api.getExperience(experienceID);               
+        	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);           	            		
+      		videoPlayer.pause();
+        },
+
+        playIt: function(experienceID){
+        	player = brightcove.api.getExperience(experienceID);               
+          videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
+          videoPlayer.play();        	
+        }
+
+
+      } //end of return
     }();
 
     // Scroll event listener
@@ -120,7 +117,6 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
     });
 
     var videoStill = function(videoName){
-    	console.log($jq(videoName).children().first().hasClass('figure__media'))
     	return $jq(videoName).children().first().hasClass('figure__media')
     };
   });
