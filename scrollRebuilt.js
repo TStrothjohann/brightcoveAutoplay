@@ -1,5 +1,6 @@
 if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
   var videoIDs = [], experienceIDs = [];
+  var excludedVideos = ["4277025614001"];
   var $jq = jQuery.noConflict();
 
   $jq(document).ready( function() {
@@ -16,7 +17,7 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
       .each(function(){
         videoIDs.push($jq(this).attr('data-video'))
         var experienceID = 'myExperience' + $jq(this).attr('data-video')
-        experienceIDs.push(experienceID)        
+        experienceIDs.push(experienceID)    
     });
 
     window.BCTEST = function() {
@@ -33,8 +34,8 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
               + '<param name="bgcolor" value="#FFFFFF" />'
               + '<param name="width" value="580" />'
               + '<param name="height" value="326" />'
-              + '<param name="playerID" value="2922359108001" />'
-              + '<param name="playerKey" value="AQ~~%2CAAAABDk7jCk~%2CHc7JUgOccNpvlYo3iMVDRDd9PQS2LC9" />'
+              + '<param name="playerID" value="71289488001" />'
+              + '<param name="playerKey" value="AQ~~,AAAABDk7jCk~,Hc7JUgOccNp4D5O9OupA8T0ybhDjWLSQ" />'
               + '<param name="isVid" value="true" />'
               + '<param name="isUI" value="true" />'
               + '<param name="dynamicStreaming" value="true" />'
@@ -81,7 +82,7 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
             var videoName = ".video__" + i
            
             if ( this.isScrolledIntoView( videoName )) {
-              if( videoStill(videoName) ){
+              if( videoStill(videoName) && excludedVideos.indexOf(videoIDs[i-1]) == -1 ){
               	buildVideo(i)
               } else {
               	this.playIt(experienceIDs[i-1])
