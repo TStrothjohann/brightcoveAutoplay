@@ -1,105 +1,127 @@
-$(document).ready( function() {
-	var videoIDs = []
+if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
+  var videoIDs = []
+  var $jq = jQuery.noConflict();
 
-	//Add a class with number to each of the video-frames
-    $( '.video__still' ).each(function(i) {
+  $jq(document).ready( function() {
+    
+    //individual class for each video container
+    $jq( '.video__still' ).each(function(i) {
       i = i+1;
-      $(this).addClass('video__' + i);
+      $jq(this).addClass('video__' + i);
     });
 
-    //Push all video ids into videoIDs Array
-    $('.video__still')
-		.parent()
-		.each(function(){
-			videoIDs.push($(this).attr('data-video'))
-	});
+    //Push all video ids into videoIDs array
+    $jq('.video__still')
+      .parent()
+      .each(function(){
+        videoIDs.push($jq(this).attr('data-video'))
+    });
 
-	window.BCVideo = function(){
-		var videoID   = $( ".video__still" ).parent().attr("data-video"),
-		videosource   = '<div class="video__wrapper data-video="'+ videoID +'">'+'<object id="myExperience'+ videoID +'" class="BrightcoveExperience">'
-                + '<param name="htmlFallback" value="true" /> '
-                + '<param name="bgcolor" value="#FFFFFF" />'
-                + '<param name="width" value="580" />'
-                + '<param name="height" value="326" />'
-                + '<param name="playerID" value="71289488001" />'
-                + '<param name="playerKey" value="AQ~~,AAAABDk7jCk~,Hc7JUgOccNp4D5O9OupA8T0ybhDjWLSQ" />'
-                + '<param name="isVid" value="true" />'
-                + '<param name="isUI" value="true" />'
-                + '<param name="dynamicStreaming" value="true" />'
-                + '<param name="@videoPlayer" value="'+ videoID +'" />'
-                + '<param name="includeAPI" value="true" />'
-                + '<param name="templateLoadHandler" value="BCVideo.onTemplateLoad" />'
-                + '<param name="templateReadyHandler" value="BCVideo.onTemplateReady" />'
-                + '<param name="autoStart" value="false" />'
-                + '</object></div>',
-        is_rendering  = false,
-        is_playing    = false,
-        player      = null, 
-        videoplayer   = null, 
-        APIModules;
+    window.BCTEST = function() {
+      var videoID   = $jq( ".video__still" ).parent().attr("data-video"),
+      videosource,
+      is_rendering  = false,
+      is_playing    = false,
+      player      = null, 
+      videoPlayer   = null, 
+      players = [],
+      APIModules;
 
-        return {
-        	onTemplateLoad: function( experience_id ) {
-				console.log("loaded");
-			},
+      var buildVideo = function(index){ 
+      	var videoName = ".video__" + index
+        videoSource = '<div class="video__wrapper data-video="'+ videoIDs[index-1] +'">'+'<object id="myExperience'+ videoIDs[index-1] +'" class="BrightcoveExperience">'
+              + '<param name="htmlFallback" value="true" /> '
+              + '<param name="bgcolor" value="#FFFFFF" />'
+              + '<param name="width" value="580" />'
+              + '<param name="height" value="326" />'
+              + '<param name="playerID" value="71289488001" />'
+              + '<param name="playerKey" value="AQ~~,AAAABDk7jCk~,Hc7JUgOccNp4D5O9OupA8T0ybhDjWLSQ" />'
+              + '<param name="isVid" value="true" />'
+              + '<param name="isUI" value="true" />'
+              + '<param name="dynamicStreaming" value="true" />'
+              + '<param name="@videoPlayer" value="'+ videoIDs[index-1] +'" />'
+              + '<param name="includeAPI" value="true" />'
+              + '<param name="templateLoadHandler" value="BCTEST.onTemplateLoad" />'
+              + '<param name="templateReadyHandler" value="BCTEST.onTemplateReady" />'
+              + '<param name="autoStart" value="false" />'
+              + '</object></div>'
+          $jq( videoName ).empty().append( videoSource );
+          brightcove.createExperiences();
+      };
 
-			onTemplateReady: function (evt) {
-				player = brightcove.api.getExperience( evt.target.experience.id );
-				APIModules = brightcove.api.modules.APIModules;
-				videoplayer = player.getModule(APIModules.VIDEO_PLAYER);
-          		videoplayer.play();
-          		is_rendering = false;
-				is_playing = true;
-		        console.log("started");
-        	},
+      return {
+        onTemplateLoad: function( experienceID ) {
+          is_rendering = true;
+          console.log("loading");
+        },
 
-        	isScrolledIntoView: function(elem) {
-        		var docViewTop, docViewBottom, elemTop, elemBottom
-        		docViewTop = $(window).scrollTop()
-				docViewBottom = docViewTop + $(window).height()
-            	elemTop = $(elem).offset().top
-           		elemBottom = elemTop + $(elem).height();
-          		
-          		return (
-            		(elemBottom >= docViewTop) && 
-					(elemTop <= docViewBottom) && 
-					(elemBottom <= docViewBottom) &&
-					(elemTop >= docViewTop)
-				);
-			},
+        onTemplateReady: function (evt) {
+          APIModules = brightcove.api.modules.APIModules;
+          player = brightcove.api.getExperience(evt.target.experience.id);               
+          initialVideoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
+          initialVideoPlayer.play();
+          is_playing = true;
+          console.log("playing");
+          players.push(evt.target.experience.id)
+        },
 
-			checkIfVideoInView: function() {
-				if ( this.isScrolledIntoView( '.video__still' ) ) {
-					if( $( '.video__still .figure__media' ).size() > 0 ) {
-						is_rendering = true;
-						$( '.video__still' ).empty().append( videosource );
-						brightcove.createExperiences();
-					} else {
-	              		if( !is_rendering && videoplayer !== null && !is_playing ) {
-	                		videoplayer.play();
-	                		is_playing = true;
-	                		console.log("playing");
-	              		}
-	            	}
-          		} else {
-	            	if( is_playing && videoplayer !== null ) {
-	              		videoplayer.pause();
-						is_playing = false;
-						console.log("pause");
-	            	}
-          		}
-			},
+        isScrolledIntoView: function( elem ) {
+          // again: vars at the top of a function
+          var docViewTop = $jq(window).scrollTop(),
+              docViewBottom = docViewTop + $jq(window).height(),
+              elemTop = $jq(elem).offset().top,
+              elemBottom = elemTop + $jq(elem).height();
 
-			trackAction: function(action, videoid) {
-				action = action || 'play';
-				videoid = videoid || videoToPlay;
-				console.log("Player " + action + ".");
-       		}
-        };
-	};
+          //evaluates to true when in view
+          return (
+            (elemBottom >= docViewTop) && 
+            (elemTop <= docViewBottom) && 
+            (elemBottom <= docViewBottom) &&
+            (elemTop >= docViewTop)
+          );
+        },
 
-	$(window).on("scroll", function(){
-		BCVideo.checkIfVideoInView();
-	});
+        playPauseInView: function() {
+          for (var i = 1; i <= videoIDs.length; i++) {
+            var videoName = ".video__" + i
+           
+            if ( this.isScrolledIntoView( videoName )) {
+              //if video still replace with video
+              if( videoStill(videoName) ){
+              	buildVideo(i)
+              //else play the video
+              } else {
+              	player = brightcove.api.getExperience(players[i-1]);               
+                videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
+                videoPlayer.play();
+                is_playing = true;
+                console.log("playing");
+              }
+              
+              console.log("inView"+players[i-1])
+            //When video is out of view
+            } else {
+            		if( !videoStill(videoName) ){
+	            		player = brightcove.api.getExperience(players[i-1]);               
+	              	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);           	            		
+	            		videoPlayer.pause();
+	            		is_playing = false;	            	            	
+            			console.log("outOfView"+players[i-1])
+            		};
+            }
+          }; //end of loop
+        }        
+      }
+    }();
 
-});
+    // Scroll event listener
+    $jq(window).on("scroll", function(){
+      BCTEST.playPauseInView();
+    });
+
+    var videoStill = function(videoName){
+    	console.log($jq(videoName).children().first().hasClass('figure__media'))
+    	return $jq(videoName).children().first().hasClass('figure__media')
+    };
+  });
+}
