@@ -1,5 +1,5 @@
 if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
-  var videoIDs = []
+  var videoIDs = [], experienceIDs = [];
   var $jq = jQuery.noConflict();
 
   $jq(document).ready( function() {
@@ -15,25 +15,26 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
       .parent()
       .each(function(){
         videoIDs.push($jq(this).attr('data-video'))
+        var experienceID = 'myExperience' + $jq(this).attr('data-video')
+        experienceIDs.push(experienceID)        
     });
 
     window.BCTEST = function() {
       var videoID   = $jq( ".video__still" ).parent().attr("data-video"),
       videosource,
       player      = null, 
-      videoPlayer   = null, 
-      players = [],
+      videoPlayer   = null,
       APIModules;
 
       var buildVideo = function(index){ 
       	var videoName = ".video__" + index
-        videoSource = '<div class="video__wrapper data-video="'+ videoIDs[index-1] +'">'+'<object id="myExperience'+ videoIDs[index-1] +'" class="BrightcoveExperience">'
+        videoSource = '<div class="video__wrapper data-video="'+ videoIDs[index-1] +'">'+'<object id="'+ experienceIDs[index-1] +'" class="BrightcoveExperience">'
               + '<param name="htmlFallback" value="true" /> '
               + '<param name="bgcolor" value="#FFFFFF" />'
               + '<param name="width" value="580" />'
               + '<param name="height" value="326" />'
-              + '<param name="playerID" value="71289488001" />'
-              + '<param name="playerKey" value="AQ~~,AAAABDk7jCk~,Hc7JUgOccNp4D5O9OupA8T0ybhDjWLSQ" />'
+              + '<param name="playerID" value="2922359108001" />'
+              + '<param name="playerKey" value="AQ~~%2CAAAABDk7jCk~%2CHc7JUgOccNpvlYo3iMVDRDd9PQS2LC9" />'
               + '<param name="isVid" value="true" />'
               + '<param name="isUI" value="true" />'
               + '<param name="dynamicStreaming" value="true" />'
@@ -57,7 +58,6 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
           player = brightcove.api.getExperience(evt.target.experience.id);               
           initialVideoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
           initialVideoPlayer.play();
-          players.push(evt.target.experience.id)
         },
 
         isScrolledIntoView: function( elem ) {
@@ -84,12 +84,12 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
               if( videoStill(videoName) ){
               	buildVideo(i)
               } else {
-              	this.playIt(players[i-1])
+              	this.playIt(experienceIDs[i-1])
               }             
             //When video is out of view
             } else {
 	          		if( !videoStill(videoName) ){
-           	      this.pauseIt(players[i-1])	
+           	      this.pauseIt(experienceIDs[i-1])	
 	          		};
             }
           }; //end of loop
