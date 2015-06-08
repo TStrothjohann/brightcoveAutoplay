@@ -2,28 +2,27 @@ console.log("helo script")
 if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
   var videoIDs = [], experienceIDs = [], APIModules;
   var excludedVideos = [];
-  var $jq = jQuery.noConflict();
 
-  $jq(document).ready( function() {
+  jQuery(document).ready( function() {
     console.log("hurray")
     
     //individual class for each video container
-    $jq( '.video__still' ).each(function(i) {
+    jQuery( '.video__still' ).each(function(i) {
       i = i+1;
-      $jq(this).addClass('video__' + i);
+      jQuery(this).addClass('video__' + i);
     });
 
     //Push all video ids into videoIDs array
-    $jq('.video__still')
+    jQuery('.video__still')
       .parent()
       .each(function(){
-        videoIDs.push($jq(this).attr('data-video'))
-        var experienceID = 'myExperience' + $jq(this).attr('data-video')
+        videoIDs.push(jQuery(this).attr('data-video'))
+        var experienceID = 'myExperience' + jQuery(this).attr('data-video')
         experienceIDs.push(experienceID)    
     });
 
     window.BCTEST = function() {
-      var videoID   = $jq( ".video__still" ).parent().attr("data-video"),
+      var videoID   = jQuery( ".video__still" ).parent().attr("data-video"),
       videosource,
       player      = null, 
       videoPlayer   = null;
@@ -46,7 +45,7 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
               + '<param name="templateReadyHandler" value="BCTEST.onTemplateReady" />'
               + '<param name="autoStart" value="false" />'
               + '</object></div>'
-          $jq( videoName ).empty().append( videoSource );
+          jQuery( videoName ).empty().append( videoSource );
           brightcove.createExperiences();
       };
 
@@ -62,10 +61,10 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
 
         isScrolledIntoView: function( elem ) {
           // again: vars at the top of a function
-          var docViewTop = $jq(window).scrollTop(),
-              docViewBottom = docViewTop + $jq(window).height(),
-              elemTop = $jq(elem).offset().top,
-              elemBottom = elemTop + $jq(elem).height();
+          var docViewTop = jQuery(window).scrollTop(),
+              docViewBottom = docViewTop + jQuery(window).height(),
+              elemTop = jQuery(elem).offset().top,
+              elemBottom = elemTop + jQuery(elem).height();
 
           //evaluates to true when in view
           return (
@@ -115,17 +114,17 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
     }();
 
     // Scroll event listener
-    $jq(window).on("scroll", function(){
+    jQuery(window).on("scroll", function(){
       BCTEST.playPauseInView();
     });
 
     var videoStill = function(videoName){
-    	return $jq(videoName).children().first().hasClass('figure__media')
+    	return jQuery(videoName).children().first().hasClass('figure__media')
     };
 
     var catchClick= function(){
-      $jq(".video__still").on("mousedown", function(event){
-        excludedVideos.push($jq(this).parent().attr("data-video"))
+      jQuery(".video__still").on("mousedown", function(event){
+        excludedVideos.push(jQuery(this).parent().attr("data-video"))
       })
     };
     catchClick();
