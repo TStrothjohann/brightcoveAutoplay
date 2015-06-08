@@ -1,5 +1,5 @@
 var areYouReady = function(){
-  if($){
+  if(typeof $ !== "undefined"){
     videosInView();
   } else {
     setTimeout(areYouReady, 200);
