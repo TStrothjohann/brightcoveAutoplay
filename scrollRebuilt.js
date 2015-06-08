@@ -1,9 +1,11 @@
+console.log("helo script")
 if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
   var videoIDs = [], experienceIDs = [], APIModules;
   var excludedVideos = [];
   var $jq = jQuery.noConflict();
 
   $jq(document).ready( function() {
+    console.log("hurray")
     
     //individual class for each video container
     $jq( '.video__still' ).each(function(i) {
