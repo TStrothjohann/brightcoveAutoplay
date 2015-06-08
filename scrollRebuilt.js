@@ -1,34 +1,41 @@
-console.log("helo script")
-if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
+var areYouReady = function(){
+  if($){
+    videosInView();
+  } else {
+    setTimeout(areYouReady, 200);
+  }
+};
+
+var videosInView = function(){
+  if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
   var videoIDs = [], experienceIDs = [], APIModules;
   var excludedVideos = [];
 
-  jQuery(document).ready( function() {
     console.log("hurray")
     
     //individual class for each video container
-    jQuery( '.video__still' ).each(function(i) {
+    $( '.video__still' ).each(function(i) {
       i = i+1;
-      jQuery(this).addClass('video__' + i);
+      $(this).addClass('video__' + i);
     });
 
     //Push all video ids into videoIDs array
-    jQuery('.video__still')
+    $('.video__still')
       .parent()
       .each(function(){
-        videoIDs.push(jQuery(this).attr('data-video'))
-        var experienceID = 'myExperience' + jQuery(this).attr('data-video')
+        videoIDs.push($(this).attr('data-video'))
+        var experienceID = 'myExperience' + $(this).attr('data-video')
         experienceIDs.push(experienceID)    
     });
 
     window.BCTEST = function() {
-      var videoID   = jQuery( ".video__still" ).parent().attr("data-video"),
+      var videoID   = $( ".video__still" ).parent().attr("data-video"),
       videosource,
-      player      = null, 
+      player        = null, 
       videoPlayer   = null;
 
       var buildVideo = function(index){ 
-      	var videoName = ".video__" + index
+        var videoName = ".video__" + index
         videoSource = '<div class="video__wrapper data-video="'+ videoIDs[index-1] +'">'+'<object id="'+ experienceIDs[index-1] +'" class="BrightcoveExperience">'
               + '<param name="htmlFallback" value="true" /> '
               + '<param name="bgcolor" value="#FFFFFF" />'
@@ -45,7 +52,7 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
               + '<param name="templateReadyHandler" value="BCTEST.onTemplateReady" />'
               + '<param name="autoStart" value="false" />'
               + '</object></div>'
-          jQuery( videoName ).empty().append( videoSource );
+          $( videoName ).empty().append( videoSource );
           brightcove.createExperiences();
       };
 
@@ -61,10 +68,10 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
 
         isScrolledIntoView: function( elem ) {
           // again: vars at the top of a function
-          var docViewTop = jQuery(window).scrollTop(),
-              docViewBottom = docViewTop + jQuery(window).height(),
-              elemTop = jQuery(elem).offset().top,
-              elemBottom = elemTop + jQuery(elem).height();
+          var docViewTop = $(window).scrollTop(),
+              docViewBottom = docViewTop + $(window).height(),
+              elemTop = $(elem).offset().top,
+              elemBottom = elemTop + $(elem).height();
 
           //evaluates to true when in view
           return (
@@ -81,32 +88,32 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
            
             if ( this.isScrolledIntoView( videoName )) {
               if( videoStill(videoName) && excludedVideos.indexOf(videoIDs[i-1]) == -1 ){
-              	buildVideo(i)
+                buildVideo(i)
               } else {
-              	if(excludedVideos.indexOf(videoIDs[i-1]) == -1){
+                if(excludedVideos.indexOf(videoIDs[i-1]) == -1){
                   this.playIt(experienceIDs[i-1])
                 }                
               }             
             //When video is out of view
             } else {
-	          		if( !videoStill(videoName) && excludedVideos.indexOf(videoIDs[i-1]) == -1 ){
-           	      this.pauseIt(experienceIDs[i-1])	
-	          		};
+                if( !videoStill(videoName) && excludedVideos.indexOf(videoIDs[i-1]) == -1 ){
+                  this.pauseIt(experienceIDs[i-1])  
+                };
             }
           }; //end of loop
         },
 
         pauseIt: function(experienceID){
-		      player = brightcove.api.getExperience(experienceID);               
-        	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);           	            		
-      		videoPlayer.pause();
+          player = brightcove.api.getExperience(experienceID);               
+          videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);                            
+          videoPlayer.pause();
         },
 
         playIt: function(experienceID){          
-        	player = brightcove.api.getExperience(experienceID);               
+          player = brightcove.api.getExperience(experienceID);               
           videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);          
           videoPlayer.play(); 
-          stopOtherPlayers(experienceID);       	
+          stopOtherPlayers(experienceID);         
         }
 
 
@@ -114,17 +121,17 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
     }();
 
     // Scroll event listener
-    jQuery(window).on("scroll", function(){
+    $(window).on("scroll", function(){
       BCTEST.playPauseInView();
     });
 
     var videoStill = function(videoName){
-    	return jQuery(videoName).children().first().hasClass('figure__media')
+      return $(videoName).children().first().hasClass('figure__media')
     };
 
     var catchClick= function(){
-      jQuery(".video__still").on("mousedown", function(event){
-        excludedVideos.push(jQuery(this).parent().attr("data-video"))
+      $(".video__still").on("mousedown", function(event){
+        excludedVideos.push($(this).parent().attr("data-video"))
       })
     };
     catchClick();
@@ -136,5 +143,7 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
         }
       };
     }
-  });
+  
+} 
 }
+areYouReady();
