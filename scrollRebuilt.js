@@ -1,5 +1,5 @@
 if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
-  var videoIDs = [], experienceIDs = [];
+  var videoIDs = [], experienceIDs = [], APIModules;
   var excludedVideos = [];
   var $jq = jQuery.noConflict();
 
@@ -24,8 +24,7 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
       var videoID   = $jq( ".video__still" ).parent().attr("data-video"),
       videosource,
       player      = null, 
-      videoPlayer   = null,
-      APIModules;
+      videoPlayer   = null;
 
       var buildVideo = function(index){ 
       	var videoName = ".video__" + index
@@ -51,14 +50,12 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
 
       return {
         onTemplateLoad: function( experienceID ) {
+          APIModules = brightcove.api.modules.APIModules;
           console.log("loading");
         },
 
         onTemplateReady: function (evt) {
-          APIModules = brightcove.api.modules.APIModules;
-          player = brightcove.api.getExperience(evt.target.experience.id);               
-          initialVideoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
-          initialVideoPlayer.play();
+          BCTEST.playIt(evt.target.experience.id)
         },
 
         isScrolledIntoView: function( elem ) {
@@ -104,10 +101,11 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
       		videoPlayer.pause();
         },
 
-        playIt: function(experienceID){
+        playIt: function(experienceID){          
         	player = brightcove.api.getExperience(experienceID);               
-          videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
-          videoPlayer.play();        	
+          videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);          
+          videoPlayer.play(); 
+          stopOtherPlayers(experienceID);       	
         }
 
 
@@ -126,12 +124,16 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
     var catchClick= function(){
       $jq(".video__still").on("mousedown", function(event){
         excludedVideos.push($jq(this).parent().attr("data-video"))
-        //excludedVideos.push($jq(".video__wrapper").attr('data-video'))
-        console.log($jq(this).parent().attr("data-video"))
       })
     };
     catchClick();
+
+    var stopOtherPlayers = function(experienceID){
+      for (var i = experienceIDs.length - 1; i >= 0; i--) {
+        if(experienceIDs[i] != experienceID){
+          BCTEST.pauseIt(experienceIDs[i])
+        }
+      };
+    }
   });
 }
-
-
