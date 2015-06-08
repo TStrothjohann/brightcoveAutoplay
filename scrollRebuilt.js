@@ -1,6 +1,6 @@
 if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
   var videoIDs = [], experienceIDs = [];
-  var excludedVideos = ["4277025614001"];
+  var excludedVideos = [];
   var $jq = jQuery.noConflict();
 
   $jq(document).ready( function() {
@@ -85,11 +85,13 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
               if( videoStill(videoName) && excludedVideos.indexOf(videoIDs[i-1]) == -1 ){
               	buildVideo(i)
               } else {
-              	this.playIt(experienceIDs[i-1])
+              	if(excludedVideos.indexOf(videoIDs[i-1]) == -1){
+                  this.playIt(experienceIDs[i-1])
+                }                
               }             
             //When video is out of view
             } else {
-	          		if( !videoStill(videoName) ){
+	          		if( !videoStill(videoName) && excludedVideos.indexOf(videoIDs[i-1]) == -1 ){
            	      this.pauseIt(experienceIDs[i-1])	
 	          		};
             }
@@ -120,5 +122,16 @@ if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
     var videoStill = function(videoName){
     	return $jq(videoName).children().first().hasClass('figure__media')
     };
+
+    var catchClick= function(){
+      $jq(".video__still").on("mousedown", function(event){
+        excludedVideos.push($jq(this).parent().attr("data-video"))
+        //excludedVideos.push($jq(".video__wrapper").attr('data-video'))
+        console.log($jq(this).parent().attr("data-video"))
+      })
+    };
+    catchClick();
   });
 }
+
+
