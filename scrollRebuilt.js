@@ -10,8 +10,6 @@ var videosInView = function(){
   if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
   var videoIDs = [], experienceIDs = [], APIModules;
   var excludedVideos = [];
-
-    console.log("hurray")
     
     //individual class for each video container
     $( '.video__still' ).each(function(i) {
@@ -36,11 +34,13 @@ var videosInView = function(){
 
       var buildVideo = function(index){ 
         var videoName = ".video__" + index
+        var videoWidth = getVideoWidth(videoName);
+        var videoHeight = getVideoHeight(videoName);
         videoSource = '<div class="video__wrapper data-video="'+ videoIDs[index-1] +'">'+'<object id="'+ experienceIDs[index-1] +'" class="BrightcoveExperience">'
               + '<param name="htmlFallback" value="true" /> '
               + '<param name="bgcolor" value="#FFFFFF" />'
-              + '<param name="width" value="580" />'
-              + '<param name="height" value="326" />'
+              //+ '<param name="width" value="580" />'
+              //+ '<param name="height" value="132" />'
               + '<param name="playerID" value="71289488001" />'
               + '<param name="playerKey" value="AQ~~,AAAABDk7jCk~,Hc7JUgOccNp4D5O9OupA8T0ybhDjWLSQ" />'
               + '<param name="isVid" value="true" />'
@@ -54,15 +54,19 @@ var videosInView = function(){
               + '</object></div>'
           $( videoName ).empty().append( videoSource );
           brightcove.createExperiences();
+          if($( videoName ).parent().hasClass("figure-stamp")){
+  						$( videoName ).css({ "width": "100%", "float": "none" })
+					}
       };
 
       return {
         onTemplateLoad: function( experienceID ) {
-          APIModules = brightcove.api.modules.APIModules;
+        	APIModules = brightcove.api.modules.APIModules;
           console.log("loading");
         },
 
         onTemplateReady: function (evt) {
+          console.log("ready")
           BCTEST.playIt(evt.target.experience.id)
         },
 
@@ -104,16 +108,25 @@ var videosInView = function(){
         },
 
         pauseIt: function(experienceID){
-          player = brightcove.api.getExperience(experienceID);               
-          videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);                            
-          videoPlayer.pause();
+        	if(typeof experienceID !== "undefined"){
+        		player = brightcove.api.getExperience(experienceID);               
+        	}
+          
+          if(typeof player !== "undefined"){
+          	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);                            
+          	videoPlayer.pause();
+          }
         },
 
-        playIt: function(experienceID){          
-          player = brightcove.api.getExperience(experienceID);               
-          videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);          
-          videoPlayer.play(); 
-          stopOtherPlayers(experienceID);         
+        playIt: function(experienceID){ 
+        	if(typeof experienceID !== "undefined"){         
+          	player = brightcove.api.getExperience(experienceID);
+          }               
+          if(typeof player !== "undefined"){
+          	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);          
+          	videoPlayer.play(); 
+          	//stopOtherPlayers(experienceID);
+          }         
         }
 
 
@@ -143,7 +156,28 @@ var videosInView = function(){
         }
       };
     }
+
+    var getVideoWidth = function(videoName){
+    	if($( ".video__still" ).parent().hasClass("figure-stamp")){
+    		return "100%"
+    	} else {
+    		return "132"
+    	}
+    }
+
+    var getVideoHeight = function(videoName){
+    	if($( ".video__still" ).parent().hasClass("figure-stamp")){
+    		return ""
+    	} else {
+    		return "580"
+    	}
+    }
   
 } 
 }
 areYouReady();
+
+
+
+
+
