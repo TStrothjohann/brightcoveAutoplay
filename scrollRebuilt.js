@@ -34,38 +34,31 @@ var videosInView = function(){
       return {
 
         onTemplateLoad: function() {
-    			console.log("loading");
     			APIModules = brightcove.api.modules.APIModules;      
     		},
 
     		onTemplateReady: function (evt) {
-          console.log("ready")
           playIt(evt.target.experience.id)
         }
 
-      } //end of return
+      } 
     }();
-
-    // Scroll event listener
-    $(window).on("scroll", function(){
-      playPauseInView();
-    });
 
     var videoStill = function(videoName){
       return $(videoName).children().first().hasClass('figure__media')
     };
 
-    var catchClick= function(){
+    var catchClickOnVideo= function(){
       $(".video__still").on("mousedown", function(event){
         excludedVideos.push($(this).parent().attr("data-video"))
       })
     };
-    catchClick();
+    catchClickOnVideo();
 
     var stopOtherPlayers = function(experienceID){
       for (var i = experienceIDs.length - 1; i >= 0; i--) {
         if(experienceIDs[i] != experienceID){
-          BCTEST.pauseIt(experienceIDs[i]) // logged für jeden PLayer, der gerade nicht existiert Error.
+          pauseIt(experienceIDs[i])
         }
       };
     };
@@ -82,7 +75,7 @@ var videosInView = function(){
             + '<param name="dynamicStreaming" value="true" />'
             + '<param name="@videoPlayer" value="'+ videoIDs[index-1] +'" />'
             + '<param name="includeAPI" value="true" />'
-            + '<param name="templateLoadHandler" value="BCTEST.onTemplateLoad()" />'
+            + '<param name="templateLoadHandler" value="BCTEST.onTemplateLoad" />'
             + '<param name="templateReadyHandler" value="BCTEST.onTemplateReady" />'
             + '<param name="autoStart" value="false" />'
             + '</object></div>'
@@ -94,19 +87,19 @@ var videosInView = function(){
     };
 
     var playIt = function(experienceID){ 
-     	if(typeof experienceID !== "undefined"){         
+     	if(typeof experienceID !== "undefined" && brightcove.api !== "undefined"){         
        	player = brightcove.api.getExperience(experienceID);
       }               
       if(typeof player !== "undefined"){
        	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);          
        	videoPlayer.play(); 
-       	//stopOtherPlayers(experienceID);
+       	stopOtherPlayers(experienceID);
       }         
     };
 
 
     var pauseIt = function(experienceID){
-    	if(typeof experienceID !== "undefined"){
+    	if(typeof experienceID !== "undefined" && brightcove.api !== "undefined"){
     		player = brightcove.api.getExperience(experienceID);               
     	}
       
@@ -148,9 +141,12 @@ var videosInView = function(){
         (elemTop >= docViewTop)
       );
     }
+
+    // Scroll event listener
+    $(window).on("scroll", function(){
+      playPauseInView();
+    });
 } 
-
-
 
 
 areYouReady();
