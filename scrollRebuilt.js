@@ -1,5 +1,5 @@
 var areYouReady = function(){
-  if(typeof $ !== "undefined"){
+  if(typeof $ !== "undefined" && typeof brightcove !== 'undefined'){
     videosInView();
   } else {
     setTimeout(areYouReady, 200);
@@ -7,7 +7,7 @@ var areYouReady = function(){
 };
 
 var videosInView = function(){
-  if (typeof jQuery !== 'undefined' || typeof brightcove !== 'undefined') {
+  
   var videoIDs = [], experienceIDs = [], APIModules;
   var excludedVideos = [];
   var videoID   = $( ".video__still" ).parent().attr("data-video"),
@@ -119,14 +119,11 @@ var videosInView = function(){
 	  var playPauseInView = function() {
 	    for (var i = 1; i <= videoIDs.length; i++) {
 	      var videoName = ".video__" + i
-	     
-	      if ( isScrolledIntoView( videoName )) {
-	        if( videoStill(videoName) && excludedVideos.indexOf(videoIDs[i-1]) == -1 ){
+	      if ( isScrolledIntoView( videoName ) && excludedVideos.indexOf(videoIDs[i-1]) == -1 ) {
+	        if( videoStill(videoName) ){
 	          buildVideo(i)
 	        } else {
-	          if(excludedVideos.indexOf(videoIDs[i-1]) == -1){
-	            playIt(experienceIDs[i-1])
-	          }                
+	            playIt(experienceIDs[i-1])           
 	        }             
 	      //When video is out of view
 	      } else {
@@ -152,7 +149,7 @@ var videosInView = function(){
       );
     }
 } 
-}
+
 
 
 
