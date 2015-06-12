@@ -8,12 +8,8 @@ var areYouReady = function(){
 
 var videosInView = function(){
   
-  var videoIDs = [], experienceIDs = [], APIModules;
-  var excludedVideos = [];
-  var videoID   = $( ".video__still" ).parent().attr("data-video"),
-      videosource,
-      player        = null, 
-      videoPlayer   = null;
+  var videoIDs = [], experienceIDs = [], excludedVideos = [], APIModules, videosource, player, videoPlayer;
+  var videoID  = $( ".video__still" ).parent().attr("data-video");
     
     //individual class for each video container
     $( '.video__still' ).each(function(i) {
@@ -30,17 +26,15 @@ var videosInView = function(){
         experienceIDs.push(experienceID)    
     });
 
+    //Events emitted by the players on load and when ready
     window.BCTEST = function() {
       return {
-
         onTemplateLoad: function() {
     			APIModules = brightcove.api.modules.APIModules;      
     		},
-
     		onTemplateReady: function (evt) {
           playIt(evt.target.experience.id)
         }
-
       } 
     }();
 
@@ -53,7 +47,7 @@ var videosInView = function(){
         excludedVideos.push($(this).parent().attr("data-video"))
       })
     };
-    catchClickOnVideo();
+
 
     var stopOtherPlayers = function(experienceID){
       for (var i = experienceIDs.length - 1; i >= 0; i--) {
@@ -63,13 +57,24 @@ var videosInView = function(){
       };
     };
 
+
+    var getVideoPlayer = function( experienceID ) {
+    	if(typeof experienceID !== "undefined" && brightcove.api !== "undefined"){         
+       	player = brightcove.api.getExperience(experienceID);
+      }
+      if(typeof player !== "undefined"){
+       	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
+       	return videoPlayer    
+      }
+    };  
+
     var buildVideo = function(index){ 
       var videoName = ".video__" + index
       videoSource = '<div class="video__wrapper data-video="'+ videoIDs[index-1] +'">'+'<object id="'+ experienceIDs[index-1] +'" class="BrightcoveExperience">'
             + '<param name="htmlFallback" value="true" /> '
             + '<param name="bgcolor" value="#FFFFFF" />'
-            + '<param name="playerID" value="71289488001" />'
-            + '<param name="playerKey" value="AQ~~,AAAABDk7jCk~,Hc7JUgOccNp4D5O9OupA8T0ybhDjWLSQ" />'
+            + '<param name="playerID" value="2922359108001" />'
+            + '<param name="playerKey" value="AQ~~%2CAAAABDk7jCk~%2CHc7JUgOccNpvlYo3iMVDRDd9PQS2LC9K" />'
             + '<param name="isVid" value="true" />'
             + '<param name="isUI" value="true" />'
             + '<param name="dynamicStreaming" value="true" />'
@@ -86,27 +91,19 @@ var videosInView = function(){
 				}
     };
 
-    var playIt = function(experienceID){ 
-     	if(typeof experienceID !== "undefined" && brightcove.api !== "undefined"){         
-       	player = brightcove.api.getExperience(experienceID);
-      }               
-      if(typeof player !== "undefined"){
-       	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);          
-       	videoPlayer.play(); 
+    var playIt = function( experienceID ){ 
+  		videoPlayer = getVideoPlayer( experienceID );
+     	if( videoPlayer ){
+     		videoPlayer.play(); 
        	stopOtherPlayers(experienceID);
-      }         
+     	}         
     };
 
-
     var pauseIt = function(experienceID){
-    	if(typeof experienceID !== "undefined" && brightcove.api !== "undefined"){
-    		player = brightcove.api.getExperience(experienceID);               
+  		videoPlayer = getVideoPlayer( experienceID );                            
+    	if( videoPlayer ){
+    		videoPlayer.pause();
     	}
-      
-      if(typeof player !== "undefined"){
-      	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);                            
-      	videoPlayer.pause();
-      }
     };
 
 	  var playPauseInView = function() {
@@ -146,7 +143,8 @@ var videosInView = function(){
     $(window).on("scroll", function(){
       playPauseInView();
     });
-} 
 
+    catchClickOnVideo();
+}
 
 areYouReady();
