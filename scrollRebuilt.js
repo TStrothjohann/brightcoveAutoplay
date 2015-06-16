@@ -95,22 +95,24 @@ var videosInView = function(){
     var stopOtherPlayers = function(experienceID){
       for (var i = 0; i < experienceIDs.length; i++) {
         if(experienceIDs[i] != experienceID){
-          getVideoPlayer( experienceIDs[i] ).then( function(videoPlayer){
-  					if(videoPlayer.getIsPlaying()){
-  						videoPlayer.pause();
-  					}
-	        })
+          getVideoPlayer( experienceIDs[i] )
+          	.then( function(videoPlayer){  										
+							videoPlayer.pause()											
+	        	})
+	        	.catch( function(error){
+	        		return;
+	        	})
 	      };
 	    };
 	  }
 
+
     //Takes a videoID and makes the corresponding player available
     var getVideoPlayerExperience = function( experienceID ) {
-    	return new Promise( function(fulfill){
+    	return new Promise( function (fulfill, reject){
     		fulfill(brightcove.api.getExperience(experienceID))    		
     	})
     };
-
 
 
 	var getVideoPlayer = function( experienceID ){
@@ -121,7 +123,7 @@ var videosInView = function(){
 	      } catch (ex) {
 	        reject(ex);
 	      }
-	    }, reject);
+	    });
 	  });
 	};
 
