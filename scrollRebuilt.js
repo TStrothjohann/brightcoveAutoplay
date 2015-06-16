@@ -30,8 +30,9 @@ var videosInView = function(){
     window.BCTEST = function() {
       return {
         onTemplateLoad: function(evt) {
-        	console.log(evt)
-    			APIModules = brightcove.api.modules.APIModules;      
+        	if(!APIModules){
+        		APIModules = brightcove.api.modules.APIModules;
+        	}
     		},
     		onTemplateReady: function (evt) {
           playIt(evt.target.experience.id)
@@ -94,26 +95,37 @@ var videosInView = function(){
     var stopOtherPlayers = function(experienceID){
       for (var i = 0; i < experienceIDs.length; i++) {
         if(experienceIDs[i] != experienceID){
-          videoPlayer = getVideoPlayer(experienceIDs[i])
-          if(videoPlayer !== 'undefined' && excludedVideos.indexOf(videoIDs[i]) == -1){
-		    		videoPlayer.pause(); 
-          }    
-        }
-      };
-    };
+          getVideoPlayer( experienceIDs[i] ).then( function(videoPlayer){
+  					if(videoPlayer.getIsPlaying()){
+  						videoPlayer.pause();
+  					}
+	        })
+	      };
+	    };
+	  }
 
     //Takes a videoID and makes the corresponding player available
-    var getVideoPlayer = function( experienceID ) {
-    	var player = false;
-    	if(typeof experienceID !== "undefined" && brightcove.api !== "undefined"){         
-       	player = brightcove.api.getExperience(experienceID);
-      }
-      if(player && typeof player !== "undefined"){
-       	videoPlayer = player.getModule(APIModules.VIDEO_PLAYER);
-       	return videoPlayer    
-      }
-      return;
-    };  
+    var getVideoPlayerExperience = function( experienceID ) {
+    	return new Promise( function(fulfill){
+    		fulfill(brightcove.api.getExperience(experienceID))    		
+    	})
+    };
+
+
+
+	var getVideoPlayer = function( experienceID ){
+	  return new Promise(function (fulfill, reject){
+	    getVideoPlayerExperience( experienceID ).then(function (video){
+	      try {
+	        fulfill( video.getModule(APIModules.VIDEO_PLAYER) );
+	      } catch (ex) {
+	        reject(ex);
+	      }
+	    }, reject);
+	  });
+	};
+
+
 
     //Replaces the video still with a functioning video container
     var buildVideo = function(index){ 
@@ -141,19 +153,17 @@ var videosInView = function(){
 
     //Takes a video ID and runs the corresponding video
     var playIt = function( experienceID ){ 
-  		videoPlayer = getVideoPlayer( experienceID );
-     	if( videoPlayer ){
-     		videoPlayer.play(); 
-       	stopOtherPlayers(experienceID);
-     	}         
+  		getVideoPlayer( experienceID ).then( function(videoPlayer){
+  			videoPlayer.play();
+  			stopOtherPlayers(experienceID);
+  		})         
     };
 
     //Takes a video ID and pauses the corresponding video
     var pauseIt = function(experienceID){
-  		videoPlayer = getVideoPlayer( experienceID );                            
-    	if( videoPlayer !== "undefined" && excludedVideos.indexOf(videoIDs[i-1]) == -1){
-    		videoPlayer.pause();
-    	}
+  		getVideoPlayer( experienceID ).then( function(videoPlayer){
+  			videoPlayer.pause();
+  		})  
     };
 
     //The Core function: it loops through the array of players on page, builds, plays or pauses the video depending on presence in view and state.
