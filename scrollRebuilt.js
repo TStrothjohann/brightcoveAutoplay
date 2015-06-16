@@ -29,7 +29,8 @@ var videosInView = function(){
     //Events emitted by the players on load and when ready
     window.BCTEST = function() {
       return {
-        onTemplateLoad: function() {
+        onTemplateLoad: function(evt) {
+        	console.log(evt)
     			APIModules = brightcove.api.modules.APIModules;      
     		},
     		onTemplateReady: function (evt) {
@@ -91,12 +92,12 @@ var videosInView = function(){
 
     //Stops all videos except for the one that is passed into it. 
     var stopOtherPlayers = function(experienceID){
-      for (var i = experienceIDs.length - 1; i >= 0; i--) {
+      for (var i = 0; i < experienceIDs.length; i++) {
         if(experienceIDs[i] != experienceID){
           videoPlayer = getVideoPlayer(experienceIDs[i])
-          if(typeof videoPlayer !== 'undefined' && excludedVideos.indexOf(videoIDs[i-1]) == -1){
+          if(videoPlayer !== 'undefined' && excludedVideos.indexOf(videoIDs[i]) == -1){
 		    		videoPlayer.pause(); 
-          }         
+          }    
         }
       };
     };
@@ -143,7 +144,7 @@ var videosInView = function(){
   		videoPlayer = getVideoPlayer( experienceID );
      	if( videoPlayer ){
      		videoPlayer.play(); 
-       	//stopOtherPlayers(experienceID);
+       	stopOtherPlayers(experienceID);
      	}         
     };
 
