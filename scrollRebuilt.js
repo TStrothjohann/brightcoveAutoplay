@@ -6,9 +6,16 @@ var areYouReady = function(){
   }
 };
 
+if(!excludedVideos){
+    console.log("Keine Ausgeschlossenen Videos.")
+    var excludedVideos = []
+  }else{
+    console.log("Ausgeschlossene Videos:" + excludedVideos)
+};
+
 var videosInView = function(){
   
-  var videoIDs = [], experienceIDs = [], excludedVideos = [], APIModules, videosource, player, videoPlayer;
+  var videoIDs = [], experienceIDs = [], APIModules, videosource, player, videoPlayer;
   var videoID  = $( ".video__still" ).parent().attr("data-video");
     
     //individual class for each video container
@@ -96,7 +103,7 @@ var videosInView = function(){
       for (var i = 0; i < experienceIDs.length; i++) {
         if(experienceIDs[i] != experienceID){
           getVideoPlayer( experienceIDs[i] )
-          	.then( function(videoPlayer){  										
+          	.then( function(videoPlayer){										
 							videoPlayer.pause()											
 	        	})
 	        	.catch( function(error){
@@ -155,10 +162,13 @@ var videosInView = function(){
 
     //Takes a video ID and runs the corresponding video
     var playIt = function( experienceID ){ 
-  		getVideoPlayer( experienceID ).then( function(videoPlayer){
-  			videoPlayer.play();
-  			stopOtherPlayers(experienceID);
-  		})         
+  		var videoID = experienceID.replace('myExperience', '')
+      if(excludedVideos.indexOf(videoID) == -1){
+        getVideoPlayer( experienceID ).then( function(videoPlayer){
+          videoPlayer.play();
+          stopOtherPlayers(experienceID);
+        })         
+      }
     };
 
     //Takes a video ID and pauses the corresponding video
