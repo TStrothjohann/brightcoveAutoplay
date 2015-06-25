@@ -166,7 +166,7 @@ var videosInView = function(){
         $( videoName ).append( videoSource );
         //$(videoName).find(".icon-playbutton").css({"background-image":"url('http://images.zeit.de/static/img/ajax-loader.gif?1379601496')"})
         //$(videoName).find(".icon-playbutton").css({"background-image":"url('http://live0.zeit.de/infografik/preloaders/preloader__bar__circles.GIF')", "width": "256px", "height": "23px"})
-        $(videoName).find(".icon-playbutton").css({"background-image":"url('http://live0.zeit.de/infografik/preloaders/preloader__circle__line.GIF')", "width": "130px", "height": "130px"})
+        $(videoName).find(".icon-playbutton").css({"background-image":"url('http://live0.zeit.de/infografik/preloaders/preloader__circle__line.GIF')", "width": "130px", "height": "130px", "opacity":"1"})
         var videoHeight = $(videoName).find('img').outerHeight()
         var videoWidth = $(videoName).find("img").width()
         $(videoName).css({"width": videoWidth + "px", "height": videoHeight + "px", "background-color":"white"})
@@ -188,7 +188,7 @@ var videosInView = function(){
       if(excludedVideos.indexOf(videoID) == -1){
         getVideoPlayer( experienceID ).then( function(videoPlayer){
           videoPlayer.play();
-          stopOtherPlayers(experienceID);
+          //stopOtherPlayers(experienceID);
         })         
       }
     };
