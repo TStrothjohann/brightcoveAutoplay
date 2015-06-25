@@ -43,8 +43,12 @@ var videosInView = function(){
     		},
     		onTemplateReady: function (evt) {
           playIt(evt.target.experience.id)
-          $(nowPlaying).find("img").fadeOut("slow")
-          $(nowPlaying).find(".video__wrapper").css({"position":"relative", "left": "0"})          
+          $(nowPlaying).find(".video__wrapper").css({"position":"relative", "opacity":"0"})
+          $(nowPlaying).find(".video__wrapper").css({"visibility":"visible"})
+          $(nowPlaying).find("img").delay( 1000 ).fadeOut(300, function(){
+            $(nowPlaying).find(".icon-playbutton").hide()
+            $(nowPlaying).find(".video__wrapper").animate({"opacity":"1"})
+          }) 
         }
       } 
     }();
@@ -132,7 +136,10 @@ var videosInView = function(){
 	      } catch (ex) {
 	        reject(ex);
 	      }
-	    });
+	    })
+      .catch(function(err){
+        return;
+      });
 	  });
 	};
 
@@ -142,7 +149,7 @@ var videosInView = function(){
     var buildVideo = function(index){ 
       var videoName = ".video__" + index
       nowPlaying = videoName
-      videoSource = '<div style="position:absolute; left: 3000px;" class="video__wrapper data-video="'+ videoIDs[index-1] +'">'+'<object id='+ experienceIDs[index-1] +' class="BrightcoveExperience">'
+      videoSource = '<div style="visibility: hidden; left: 3000px; top:0px;" class="video__wrapper data-video="'+ videoIDs[index-1] +'">'+'<object id='+ experienceIDs[index-1] +' class="BrightcoveExperience">'
             + '<param name="htmlFallback" value="true" /> '
             + '<param name="bgcolor" value="#FFFFFF" />'
             + '<param name="playerID" value="2922359108001" />'
@@ -157,7 +164,18 @@ var videosInView = function(){
             + '<param name="autoStart" value="false" />'
             + '</object></div>'
         $( videoName ).append( videoSource );
-        $(videoName).find(".icon-playbutton").css({"background-image":"url('http://images.zeit.de/static/img/ajax-loader.gif?1379601496')"})
+        //$(videoName).find(".icon-playbutton").css({"background-image":"url('http://images.zeit.de/static/img/ajax-loader.gif?1379601496')"})
+        //$(videoName).find(".icon-playbutton").css({"background-image":"url('http://live0.zeit.de/infografik/preloaders/preloader__bar__circles.GIF')", "width": "256px", "height": "23px"})
+        $(videoName).find(".icon-playbutton").css({"background-image":"url('http://live0.zeit.de/infografik/preloaders/preloader__circle__line.GIF')", "width": "130px", "height": "130px"})
+        var videoHeight = $(videoName).find('img').outerHeight()
+        var videoWidth = $(videoName).find("img").width()
+        $(videoName).css({"width": videoWidth + "px", "height": videoHeight + "px", "background-color":"white"})
+        $(videoName).find(".figure__media").removeAttr("title")
+        $(videoName).find(".figure__media").removeAttr("alt")
+        $(videoName).find(".video__wrapper").css({"z-index":"1", "position":"absolute", "top":"0", "left":"0"})
+        $(videoName).find("img").fadeTo( "slow", 0.33 );
+        $(videoName).find("img").css({"z-index":"800", "position":"absolute", "top":"0", "left":"0"})
+        $(videoName).parent().css({"position":"relative"})
         brightcove.createExperiences();
         if($( videoName ).parent().hasClass("figure-stamp")){
 						$( videoName ).css({ "width": "100%", "float": "none" })
