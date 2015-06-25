@@ -15,7 +15,7 @@ if(!excludedVideos){
 
 var videosInView = function(){
   
-  var videoIDs = [], experienceIDs = [], APIModules, videosource, player, videoPlayer;
+  var videoIDs = [], experienceIDs = [], APIModules, videosource, player, videoPlayer, nowPlaying;
   var videoID  = $( ".video__still" ).parent().attr("data-video");
     
     //individual class for each video container
@@ -37,12 +37,14 @@ var videosInView = function(){
     window.BCTEST = function() {
       return {
         onTemplateLoad: function(evt) {
-        	if(!APIModules){
+          if(!APIModules){
         		APIModules = brightcove.api.modules.APIModules;
         	}
     		},
     		onTemplateReady: function (evt) {
           playIt(evt.target.experience.id)
+          $(nowPlaying).find("img").fadeOut("slow")
+          $(nowPlaying).find(".video__wrapper").css({"position":"relative", "left": "0"})          
         }
       } 
     }();
@@ -87,7 +89,7 @@ var videosInView = function(){
 
 		//Helper: checks if ther video still has been replaced with the video yet
     var videoStill = function(videoName){
-      return $(videoName).children().first().hasClass('figure__media')
+      return $(videoName).find('.video__wrapper').length === 0 
     };
 
     //Helper: excludes a video from the script if the user has clicked on it once Flash-Object only.
@@ -139,7 +141,8 @@ var videosInView = function(){
     //Replaces the video still with a functioning video container
     var buildVideo = function(index){ 
       var videoName = ".video__" + index
-      videoSource = '<div class="video__wrapper data-video="'+ videoIDs[index-1] +'">'+'<object id='+ experienceIDs[index-1] +' class="BrightcoveExperience">'
+      nowPlaying = videoName
+      videoSource = '<div style="position:absolute; left: 3000px;" class="video__wrapper data-video="'+ videoIDs[index-1] +'">'+'<object id='+ experienceIDs[index-1] +' class="BrightcoveExperience">'
             + '<param name="htmlFallback" value="true" /> '
             + '<param name="bgcolor" value="#FFFFFF" />'
             + '<param name="playerID" value="2922359108001" />'
@@ -153,7 +156,8 @@ var videosInView = function(){
             + '<param name="templateReadyHandler" value="BCTEST.onTemplateReady" />'
             + '<param name="autoStart" value="false" />'
             + '</object></div>'
-        $( videoName ).empty().append( videoSource );
+        $( videoName ).append( videoSource );
+        $(videoName).find(".icon-playbutton").css({"background-image":"url('http://images.zeit.de/static/img/ajax-loader.gif?1379601496')"})
         brightcove.createExperiences();
         if($( videoName ).parent().hasClass("figure-stamp")){
 						$( videoName ).css({ "width": "100%", "float": "none" })
